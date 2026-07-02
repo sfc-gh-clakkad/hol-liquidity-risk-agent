@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquidity Risk Agent - Cortex Code Hands-on Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sf-blue: #29B5E8;
+            --sf-blue-dark: #1A8BB8;
+            --sf-blue-deeper: #11567C;
+            --sf-navy: #0F1B2D;
+            --sf-navy-light: #162238;
+            --sf-navy-lighter: #1D2D47;
+            --sf-white: #FFFFFF;
+            --sf-gray-50: #F8FAFC;
+            --sf-gray-100: #F1F5F9;
+            --sf-gray-200: #E2E8F0;
+            --sf-gray-300: #CBD5E1;
+            --sf-gray-400: #94A3B8;
+            --sf-gray-500: #64748B;
+            --sf-gray-600: #475569;
+            --sf-gray-700: #334155;
+            --sf-gray-800: #1E293B;
+            --sf-accent: #49D49D;
+            --sf-accent-dark: #36B080;
+            --sf-warning: #F59E0B;
+            --sf-danger: #EF4444;
+            --sidebar-width: 300px;
+            --header-height: 64px;
+            --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--sf-gray-50);
+            color: var(--sf-gray-800);
+            line-height: 1.7;
+            font-size: 16px;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--sf-navy);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+            border-bottom: 1px solid var(--sf-navy-lighter);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            width: 32px;
+            height: 32px;
+        }
+
+        .header-logo svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--sf-white);
+            letter-spacing: -0.01em;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--sf-gray-200);
+            margin-left: 12px;
+            padding-left: 12px;
+            border-left: 1px solid var(--sf-navy-lighter);
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-badge {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--sf-accent);
+            background: rgba(73, 212, 157, 0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(73, 212, 157, 0.2);
+        }
+
+        .header-duration {
+            font-size: 13px;
+            color: var(--sf-gray-200);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--sf-white);
+            border-right: 1px solid var(--sf-gray-200);
+            overflow-y: auto;
+            z-index: 900;
+            padding: 24px 0;
+        }
+
+        .sidebar-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--sf-gray-400);
+            padding: 0 20px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 2px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            color: var(--sf-gray-600);
+        }
+
+        .nav-item:hover {
+            background: var(--sf-gray-50);
+            color: var(--sf-gray-800);
+        }
+
+        .nav-item.active {
+            background: rgba(41, 181, 232, 0.08);
+            border-left-color: var(--sf-blue);
+            color: var(--sf-blue-deeper);
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-icon {
+            background: var(--sf-blue);
+            color: var(--sf-white);
+        }
+
+        .nav-item.completed .nav-icon {
+            background: var(--sf-accent);
+            color: var(--sf-white);
+        }
+
+        .nav-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--sf-gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--sf-gray-500);
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+
+        .nav-label {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .nav-duration {
+            font-size: 11px;
+            color: var(--sf-gray-400);
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--sf-gray-200);
+            margin: 16px 20px;
+        }
+
+        /* Main content */
+        .main {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            height: calc(100vh - var(--header-height));
+            overflow-y: auto;
+            padding: 48px 64px;
+            max-width: 900px;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.25s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        .page h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--sf-navy);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .page h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--sf-navy);
+            margin-top: 48px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--sf-gray-100);
+            letter-spacing: -0.01em;
+        }
+
+        .page h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--sf-gray-700);
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        .page p {
+            margin-bottom: 16px;
+            color: var(--sf-gray-700);
+        }
+
+        .page-subtitle {
+            font-size: 17px;
+            color: var(--sf-gray-500);
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+
+        /* Page meta bar */
+        .page-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--sf-gray-500);
+        }
+
+        .meta-item svg {
+            width: 16px;
+            height: 16px;
+            color: var(--sf-gray-400);
+        }
+
+        .meta-item strong {
+            color: var(--sf-gray-700);
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--sf-white);
+            border: 1px solid var(--sf-gray-200);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: box-shadow 0.15s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .card-icon.blue { background: rgba(41, 181, 232, 0.1); color: var(--sf-blue-dark); }
+        .card-icon.green { background: rgba(73, 212, 157, 0.1); color: var(--sf-accent-dark); }
+        .card-icon.navy { background: rgba(15, 27, 45, 0.08); color: var(--sf-navy); }
+        .card-icon.warning { background: rgba(245, 158, 11, 0.1); color: #B45309; }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--sf-navy);
+        }
+
+        .card-body {
+            font-size: 14px;
+            color: var(--sf-gray-600);
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid var(--sf-gray-200);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: var(--sf-gray-50);
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--sf-gray-700);
+            border-bottom: 1px solid var(--sf-gray-200);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--sf-gray-100);
+            color: var(--sf-gray-600);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: var(--sf-gray-50); }
+
+        /* Code blocks */
+        .code-block {
+            background: var(--sf-navy);
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 16px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block code {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #E8F0F8;
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: none;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        .code-block .code-label {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--sf-gray-300);
+            background: var(--sf-navy-lighter);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            background: var(--sf-gray-100);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--sf-blue-deeper);
+        }
+
+        /* Inline quote */
+        .quote {
+            border-left: 3px solid var(--sf-blue);
+            padding: 12px 20px;
+            margin: 20px 0;
+            background: rgba(41, 181, 232, 0.04);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .quote p {
+            font-style: italic;
+            color: var(--sf-gray-600);
+            margin-bottom: 4px;
+        }
+
+        .quote cite {
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 600;
+            color: var(--sf-gray-500);
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--sf-gray-600);
+        }
+
+        .checklist li::before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid var(--sf-gray-300);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Tags / Badges */
+        .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .badge-blue { background: rgba(41, 181, 232, 0.1); color: var(--sf-blue-dark); }
+        .badge-green { background: rgba(73, 212, 157, 0.1); color: var(--sf-accent-dark); }
+        .badge-navy { background: rgba(15, 27, 45, 0.08); color: var(--sf-navy); }
+
+        /* Exercise grid (overview page) */
+        /* Architecture diagram */
+        .arch-diagram {
+            background: var(--sf-navy);
+            border-radius: 10px;
+            padding: 32px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .arch-diagram svg {
+            max-width: 100%;
+        }
+
+        .arch-interactive .arch-box {
+            transition: filter 0.2s, stroke-width 0.2s;
+        }
+        .arch-interactive a:hover .arch-box {
+            filter: brightness(1.3);
+            stroke-width: 2.5;
+        }
+
+        .arch-bonus-links {
+            display: flex;
+            gap: 12px;
+            margin: 12px 0 24px;
+        }
+        .arch-bonus-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(41, 181, 232, 0.06);
+            border: 1px solid rgba(41, 181, 232, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .arch-bonus-chip:hover {
+            background: rgba(41, 181, 232, 0.12);
+            border-color: var(--sf-blue);
+        }
+        .arch-bonus-chip span {
+            color: var(--sf-blue);
+            font-size: 12px;
+        }
+
+        /* Stakeholder cards */
+        .stakeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .stakeholder-card {
+            padding: 20px;
+            background: var(--sf-white);
+            border: 1px solid var(--sf-gray-200);
+            border-radius: 10px;
+        }
+
+        .stakeholder-card .name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--sf-navy);
+            margin-bottom: 4px;
+        }
+
+        .stakeholder-card .role {
+            font-size: 12px;
+            color: var(--sf-blue-dark);
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .stakeholder-card .concern {
+            font-size: 13px;
+            color: var(--sf-gray-600);
+            font-style: italic;
+        }
+
+        /* Key metrics row */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 20px 12px;
+            background: var(--sf-white);
+            border: 1px solid var(--sf-gray-200);
+            border-radius: 10px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--sf-blue-dark);
+            margin-bottom: 4px;
+        }
+
+        .metric-card .metric-label {
+            font-size: 12px;
+            color: var(--sf-gray-500);
+            font-weight: 500;
+        }
+
+        /* Navigation footer */
+        .page-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 64px;
+            padding-top: 24px;
+            border-top: 1px solid var(--sf-gray-200);
+        }
+
+        .page-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--sf-white);
+            border: 1px solid var(--sf-gray-200);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--sf-gray-600);
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .page-nav-btn:hover {
+            border-color: var(--sf-blue);
+            color: var(--sf-blue-dark);
+            box-shadow: 0 2px 8px rgba(41, 181, 232, 0.1);
+        }
+
+        .page-nav-btn.primary {
+            background: var(--sf-blue);
+            border-color: var(--sf-blue);
+            color: var(--sf-white);
+        }
+
+        .page-nav-btn.primary:hover {
+            background: var(--sf-blue-dark);
+            border-color: var(--sf-blue-dark);
+            color: var(--sf-white);
+            box-shadow: 0 4px 12px rgba(41, 181, 232, 0.25);
+        }
+
+        .page-nav-btn.invisible {
+            visibility: hidden;
+        }
+
+        .link-external {
+            color: var(--sf-blue);
+            font-weight: 500;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(41, 181, 232, 0.3);
+            transition: border-color 0.2s;
+        }
+        .link-external:hover {
+            border-color: var(--sf-blue);
+        }
+
+        /* Tip/Note boxes */
+        .tip-box {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            background: rgba(41, 181, 232, 0.04);
+            border: 1px solid rgba(41, 181, 232, 0.15);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .tip-box.warn {
+            background: rgba(245, 158, 11, 0.04);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .tip-box .tip-icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            color: var(--sf-blue);
+        }
+
+        .tip-box.warn .tip-icon { color: var(--sf-warning); }
+
+        .tip-box .tip-content {
+            font-size: 14px;
+            color: var(--sf-gray-600);
+            line-height: 1.6;
+        }
+
+        .tip-box .tip-content strong {
+            color: var(--sf-gray-700);
+        }
+
+        /* Task header */
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 36px;
+            margin-bottom: 16px;
+        }
+
+        .task-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--sf-blue);
+            color: var(--sf-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .task-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--sf-navy);
+        }
+
+        /* Lists */
+        .page ul, .page ol {
+            margin: 12px 0 16px 24px;
+            color: var(--sf-gray-600);
+        }
+
+        .page li {
+            margin-bottom: 6px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Scrollbar */
+        .sidebar::-webkit-scrollbar,
+        .main::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track,
+        .main::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb,
+        .main::-webkit-scrollbar-thumb {
+            background: var(--sf-gray-300);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover,
+        .main::-webkit-scrollbar-thumb:hover {
+            background: var(--sf-gray-400);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main { padding: 36px 32px; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.2s ease; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 24px 20px; }
+        }
+
+        /* Geometric accent pattern for overview hero */
+        .hero-pattern {
+            position: relative;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--sf-navy) 0%, var(--sf-navy-light) 100%);
+            border-radius: 12px;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .hero-pattern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(41, 181, 232, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-pattern::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 10%;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(73, 212, 157, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-pattern h1 {
+            color: var(--sf-white);
+            font-size: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-pattern .page-subtitle {
+            color: var(--sf-gray-100);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-pattern .hero-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--sf-white);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-brand">
+        <div class="header-logo">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 2L28 9v14l-12 7L4 23V9l12-7z" fill="none" stroke="#29B5E8" stroke-width="2"/>
+                <path d="M16 8l7 4v8l-7 4-7-4v-8l7-4z" fill="#29B5E8" opacity="0.3"/>
+                <path d="M16 11l4 2.5v5L16 21l-4-2.5v-5L16 11z" fill="#29B5E8"/>
+            </svg>
+        </div>
+        <span class="header-title">Cortex Code Hands-on Lab</span>
+        <span class="header-subtitle">Liquidity Risk Agent</span>
+    </div>
+    <div class="header-right">
+        <span class="header-badge">Basel III LCR</span>
+        <span class="header-duration">1.5 - 2 hours</span>
+    </div>
+</header>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-section-label">Lab Journey</div>
+    <ul class="sidebar-nav">
+        <li><a class="nav-item active" data-page="overview" onclick="navigateTo('overview')">
+            <span class="nav-icon">i</span>
+            <span class="nav-label">Lab Overview</span>
+        </a></li>
+    </ul>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">Core Exercises</div>
+    <ul class="sidebar-nav">
+        <li><a class="nav-item" data-page="exercise1" onclick="navigateTo('exercise1')">
+            <span class="nav-icon">1</span>
+            <span class="nav-label">Data Foundation</span>
+            <span class="nav-duration">10-30m</span>
+        </a></li>
+        <li><a class="nav-item" data-page="exercise2" onclick="navigateTo('exercise2')">
+            <span class="nav-icon">2</span>
+            <span class="nav-label">LCR Pipeline</span>
+            <span class="nav-duration">35m</span>
+        </a></li>
+        <li><a class="nav-item" data-page="exercise3" onclick="navigateTo('exercise3')">
+            <span class="nav-icon">3</span>
+            <span class="nav-label">Agent + CoWork</span>
+            <span class="nav-duration">40m</span>
+        </a></li>
+    </ul>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">Bonus</div>
+    <ul class="sidebar-nav">
+        <li><a class="nav-item" data-page="bonus-artifacts" onclick="navigateTo('bonus-artifacts')">
+            <span class="nav-icon">+</span>
+            <span class="nav-label">Project Artifacts</span>
+            <span class="nav-duration">25m</span>
+        </a></li>
+        <li><a class="nav-item" data-page="bonus-streamlit" onclick="navigateTo('bonus-streamlit')">
+            <span class="nav-icon">+</span>
+            <span class="nav-label">Streamlit Dashboard</span>
+            <span class="nav-duration">35m</span>
+        </a></li>
+    </ul>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+<!-- ============ PAGE: Overview ============ -->
+<div class="page active" id="page-overview">
+    <div class="hero-pattern">
+        <h1>Building a Liquidity Risk Agent</h1>
+        <p class="page-subtitle">Use Cortex Code to build a complete Basel III LCR analysis solution with an action-capable AI agent</p>
+        <div class="hero-tags">
+            <span class="hero-tag">Cortex Code</span>
+            <span class="hero-tag">Cortex Agent</span>
+            <span class="hero-tag">Semantic Views</span>
+            <span class="hero-tag">CoWork</span>
+        </div>
+    </div>
+
+    <h2>Business Scenario</h2>
+    <p>You're a <strong>Risk Data Analyst</strong> at <strong>GlobalBank</strong>, a large commercial bank with $150B in total assets. The Head of Treasury Risk has asked you to build a prototype demonstrating how AI-powered analytics can give the treasury team real-time liquidity insights and the ability to trigger recalculations and stress tests through natural language.</p>
+
+    <div class="metrics-row">
+        <div class="metric-card">
+            <div class="metric-value">$150B</div>
+            <div class="metric-label">Total Assets</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">$30B</div>
+            <div class="metric-label">HQLA Buffer</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">2,000+</div>
+            <div class="metric-label">Counterparties</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">100%</div>
+            <div class="metric-label">LCR Minimum</div>
+        </div>
+    </div>
+
+    <h3>Key Stakeholders</h3>
+    <div class="stakeholder-grid">
+        <div class="stakeholder-card">
+            <div class="name">James Morrison</div>
+            <div class="role">Head of Treasury Risk</div>
+            <div class="concern">"I want to ask 'recalculate LCR' and have it happen instantly."</div>
+        </div>
+        <div class="stakeholder-card">
+            <div class="name">Priya Sharma</div>
+            <div class="role">Regulatory Reporting Lead</div>
+            <div class="concern">"The HQLA haircuts must match Basel III exactly."</div>
+        </div>
+        <div class="stakeholder-card">
+            <div class="name">Tom Nguyen</div>
+            <div class="role">VP Treasury Operations</div>
+            <div class="concern">"Show me the SQL. I need to know what the AI is actually doing."</div>
+        </div>
+    </div>
+
+    <h3>What Leadership Wants to See</h3>
+    <ol>
+        <li><strong>Real-time LCR</strong> - Current ratio, trend, and headroom vs. regulatory floor</li>
+        <li><strong>On-demand Recalculation</strong> - Trigger LCR refresh without leaving the chat interface</li>
+        <li><strong>What-If Stress Tests</strong> - Run predefined scenarios via natural language</li>
+        <li><strong>Self-Service for Executives</strong> - No SQL knowledge required, available in CoWork</li>
+    </ol>
+
+    <h2>What You'll Build</h2>
+    <p>A complete AI-powered liquidity risk solution on Snowflake — click any layer to jump to that exercise.</p>
+
+    <div class="arch-diagram arch-interactive">
+        <svg width="720" height="520" viewBox="0 0 720 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Swim lane backgrounds (bottom to top) -->
+            <!-- Lane 1: Data Foundation -->
+            <rect x="0" y="420" width="720" height="100" rx="0" fill="#0D1926" opacity="0.6"/>
+            <line x1="0" y1="420" x2="720" y2="420" stroke="#1E3048" stroke-width="1"/>
+            <text x="14" y="475" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">1 · DATA</text>
+            <text x="14" y="488" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">FOUNDATION</text>
+            <!-- Lane 2: Compute & Transformations -->
+            <rect x="0" y="320" width="720" height="100" rx="0" fill="#0F1D2E" opacity="0.4"/>
+            <line x1="0" y1="320" x2="720" y2="320" stroke="#1E3048" stroke-width="1"/>
+            <text x="14" y="370" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">2 · COMPUTE &amp;</text>
+            <text x="14" y="383" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">TRANSFORMS</text>
+            <!-- Lane 3: Semantic Context -->
+            <rect x="0" y="220" width="720" height="100" rx="0" fill="#0D1926" opacity="0.6"/>
+            <line x1="0" y1="220" x2="720" y2="220" stroke="#1E3048" stroke-width="1"/>
+            <text x="14" y="270" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">3 · SEMANTIC</text>
+            <text x="14" y="283" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">CONTEXT</text>
+            <!-- Lane 4: Cortex Agent -->
+            <rect x="0" y="120" width="720" height="100" rx="0" fill="#0F1D2E" opacity="0.4"/>
+            <line x1="0" y1="120" x2="720" y2="120" stroke="#1E3048" stroke-width="1"/>
+            <text x="14" y="170" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">4 · CORTEX</text>
+            <text x="14" y="183" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">AGENT</text>
+            <!-- Lane 5: Consumption -->
+            <rect x="0" y="20" width="720" height="100" rx="0" fill="#0D1926" opacity="0.6"/>
+            <line x1="0" y1="20" x2="720" y2="20" stroke="#1E3048" stroke-width="1"/>
+            <text x="14" y="70" fill="#64748B" font-size="9" font-weight="600" letter-spacing="0.5">5 · CONSUMPTION</text>
+
+            <!-- Content boxes inside lanes -->
+            <!-- Lane 1: Data Foundation → Exercise 1 -->
+            <a onclick="navigateTo('exercise1')" style="cursor:pointer">
+                <rect x="120" y="435" width="560" height="70" rx="8" fill="#1D2D47" stroke="#29B5E8" stroke-width="1.5" class="arch-box"/>
+                <text x="400" y="460" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">Positions · Inflows · Outflows · HQLA Classifications · Counterparties · Run-off Factors</text>
+                <text x="400" y="480" text-anchor="middle" fill="#94A3B8" font-size="11">6 reference + 4 fact tables across RAW, TRANSFORMED, PRESENTATION schemas</text>
+                <text x="400" y="498" text-anchor="middle" fill="#29B5E8" font-size="10" font-weight="500">Exercise 1 · 10-30 min</text>
+            </a>
+            <!-- Lane 2: Compute → Exercise 2 -->
+            <a onclick="navigateTo('exercise2')" style="cursor:pointer">
+                <rect x="120" y="335" width="560" height="70" rx="8" fill="#1D2D47" stroke="#49D49D" stroke-width="1.5" class="arch-box"/>
+                <text x="400" y="360" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">RUN_LCR_FORECAST · RUN_WHAT_IF_SCENARIO</text>
+                <text x="400" y="380" text-anchor="middle" fill="#94A3B8" font-size="11">Snowpark Python stored procedures — Basel III haircuts, 30-day stress window</text>
+                <text x="400" y="398" text-anchor="middle" fill="#49D49D" font-size="10" font-weight="500">Exercise 2 · 35 min</text>
+            </a>
+            <!-- Lane 3: Semantic Context → Exercise 3 -->
+            <a onclick="navigateTo('exercise3')" style="cursor:pointer">
+                <rect x="120" y="235" width="560" height="70" rx="8" fill="#1D2D47" stroke="#29B5E8" stroke-width="1.5" class="arch-box"/>
+                <text x="400" y="260" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">LIQUIDITY_SV — Semantic View over 9 tables</text>
+                <text x="400" y="280" text-anchor="middle" fill="#94A3B8" font-size="11">Enables Cortex Analyst NL→SQL with facts, dimensions, metrics, and verified queries</text>
+                <text x="400" y="298" text-anchor="middle" fill="#29B5E8" font-size="10" font-weight="500">Exercise 3 · 40 min</text>
+            </a>
+            <!-- Lane 4: Cortex Agent → Exercise 3 -->
+            <a onclick="navigateTo('exercise3')" style="cursor:pointer">
+                <rect x="120" y="135" width="560" height="70" rx="8" fill="#1D2D47" stroke="#F59E0B" stroke-width="1.5" class="arch-box"/>
+                <text x="400" y="160" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">LIQUIDITY_FORECAST_AGENT — 3 Tools</text>
+                <text x="400" y="180" text-anchor="middle" fill="#94A3B8" font-size="11">LIQUIDITY_ANALYST (query) · RECALCULATE_LCR (action) · RUN_WHAT_IF (action)</text>
+                <text x="400" y="198" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="500">Exercise 3 · 40 min</text>
+            </a>
+            <!-- Lane 5: Consumption → Exercise 3 + Bonus -->
+            <a onclick="navigateTo('bonus-streamlit')" style="cursor:pointer">
+                <rect x="120" y="35" width="260" height="70" rx="8" fill="#1D2D47" stroke="#29B5E8" stroke-width="2" class="arch-box"/>
+                <text x="250" y="60" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">Snowflake Intelligence</text>
+                <text x="250" y="78" text-anchor="middle" fill="#94A3B8" font-size="11">(CoWork) — executive self-service</text>
+                <text x="250" y="98" text-anchor="middle" fill="#29B5E8" font-size="10" font-weight="500">Exercise 3</text>
+            </a>
+            <a onclick="navigateTo('bonus-streamlit')" style="cursor:pointer">
+                <rect x="420" y="35" width="260" height="70" rx="8" fill="#1D2D47" stroke="#29B5E8" stroke-width="2" class="arch-box"/>
+                <text x="550" y="60" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">Streamlit Dashboard</text>
+                <text x="550" y="78" text-anchor="middle" fill="#94A3B8" font-size="11">LCR charts · What-if · Agent chat</text>
+                <text x="550" y="98" text-anchor="middle" fill="#29B5E8" font-size="10" font-weight="500">Bonus</text>
+            </a>
+
+            <!-- Vertical flow arrows between lanes -->
+            <path d="M400 435 L400 405" stroke="#475569" stroke-width="1.5" marker-end="url(#arrowI)"/>
+            <path d="M400 335 L400 305" stroke="#475569" stroke-width="1.5" marker-end="url(#arrowI)"/>
+            <path d="M400 235 L400 205" stroke="#475569" stroke-width="1.5" marker-end="url(#arrowI)"/>
+            <path d="M400 135 L400 105" stroke="#475569" stroke-width="1.5" marker-end="url(#arrowI)"/>
+
+            <defs>
+                <marker id="arrowI" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8" fill="none" stroke="#475569" stroke-width="1.5"/>
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <div class="arch-bonus-links">
+        <a class="arch-bonus-chip" onclick="navigateTo('bonus-artifacts')">+ Project Artifacts <span>25 min</span></a>
+        <a class="arch-bonus-chip" onclick="navigateTo('bonus-streamlit')">+ Streamlit Dashboard <span>35 min</span></a>
+    </div>
+
+    <h2>Key Concepts</h2>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Concept</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><strong>LCR</strong></td><td>Basel III regulation: banks must hold enough HQLA to cover 30-day net outflows. Minimum: 100%.</td></tr>
+                <tr><td><strong>HQLA</strong></td><td>Level 1 (0% haircut: cash, govt bonds), Level 2A (15%: high-grade corporates), Level 2B (25-50%: lower-grade).</td></tr>
+                <tr><td><strong>Semantic Views</strong></td><td>Describe your data model so Cortex Analyst generates correct NL-to-SQL queries.</td></tr>
+                <tr><td><strong>Cortex Agent</strong></td><td>Multiple tools in one agent: text-to-SQL for queries AND stored procedures for actions.</td></tr>
+                <tr><td><strong>CoWork</strong></td><td>Snowflake Intelligence -- executives interact with agents through natural language chat.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>Cortex Code Desktop installed and authenticated</li>
+        <li>Lab admin has provisioned your role and warehouse (see <code>assets/lab-infra-setup/</code>)</li>
+        <li>Lab assets folder accessible from Cortex Code</li>
+    </ul>
+
+    <h3>Cortex Code Desktop Setup</h3>
+    <p>If you haven't installed Cortex Code Desktop yet, follow the official onboarding guide to download, install, and authenticate:</p>
+    <p><a href="https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code-desktop/onboarding-and-authentication" target="_blank" class="link-external">Cortex Code Desktop - Onboarding &amp; Authentication &rarr;</a></p>
+
+    <h2>Getting Started</h2>
+    <h3>Step 1: Move lab assets</h3>
+    <div class="code-block"><span class="code-label">Shell</span><code>mv ~/Downloads/cortex-code-hol-liquidity-risk ~/Documents/
+cd ~/Documents/cortex-code-hol-liquidity-risk
+cortex</code></div>
+
+    <h3>Step 2: Verify your CoCo connection</h3>
+    <p>Your lab admin has provisioned your role (<code>COCO_CLI_SANDBOX_ROLE_&lt;username&gt;</code>) and warehouse (<code>LIQUIDITY_RISK_WH_&lt;username&gt;</code>). Type in CoCo chat:</p>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Show my current Snowflake connection details (role, warehouse, database)</code></div>
+
+    <h3>Step 3: Load your company context</h3>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Read the company background from assets/customer-brief.md and the domain 
+context from assets/domain-context.md. Summarize the key requirements.</code></div>
+
+    <div class="page-nav">
+        <span class="page-nav-btn invisible"></span>
+        <a class="page-nav-btn primary" onclick="navigateTo('exercise1')">Start Exercise 1 &rarr;</a>
+    </div>
+</div>
+
+<!-- ============ PAGE: Exercise 1 ============ -->
+<div class="page" id="page-exercise1">
+    <h1>Exercise 1: Build the Data Foundation</h1>
+    <p class="page-subtitle">Create a complete liquidity risk database with realistic Basel III-compliant data.</p>
+
+    <div class="page-meta">
+        <div class="meta-item"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg><strong>10-30 minutes</strong></div>
+        <div class="meta-item"><span class="badge badge-blue">4 Tasks</span></div>
+    </div>
+
+    <h3>Deliverables</h3>
+    <ul>
+        <li>LIQUIDITY_RISK_DB database with 4 schemas (RAW, TRANSFORMED, PRESENTATION, RAW_SANDBOX)</li>
+        <li>6 reference tables with Basel III classifications</li>
+        <li>4+ fact tables with realistic position and cash flow data</li>
+        <li>Sandbox clones and presentation tables ready for the pipeline</li>
+    </ul>
+
+    <div class="tip-box">
+        <svg class="tip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <div class="tip-content"><strong>Pre-provisioned:</strong> Your lab admin has created your role (<code>COCO_CLI_SANDBOX_ROLE_&lt;username&gt;</code>) and warehouse (<code>LIQUIDITY_RISK_WH_&lt;username&gt;</code>) with the necessary grants.</div>
+    </div>
+
+    <!-- Task 0 -->
+    <div class="task-header"><span class="task-number">0</span><span class="task-title">Set Up Your CoCo Connection</span></div>
+    <p>Configure your Snowflake connection in Cortex Code Desktop:</p>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td>Account</td><td><code>&lt;account_id&gt;</code> (from lab admin)</td></tr>
+                <tr><td>Username</td><td><code>&lt;your_username&gt;</code></td></tr>
+                <tr><td>Role</td><td><code>COCO_CLI_SANDBOX_ROLE_&lt;your_username&gt;</code></td></tr>
+                <tr><td>Warehouse</td><td><code>LIQUIDITY_RISK_WH_&lt;your_username&gt;</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Show my current Snowflake connection details (role, warehouse, database)</code></div>
+
+    <!-- Task 1 -->
+    <div class="task-header"><span class="task-number">1</span><span class="task-title">Review Your Requirements</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Read the company background from assets/customer-brief.md and summarize:
+1. Key business metrics (total assets, HQLA buffer, business units)
+2. Current pain points with LCR reporting
+3. What leadership wants from this POC
+4. Success criteria James defined</code></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Read assets/domain-context.md and summarize:
+1. How LCR is calculated (formula and components)
+2. HQLA classification levels and haircuts
+3. The data model we need to create
+4. What the calculation pipeline produces</code></div>
+
+    <!-- Task 2 -->
+    <div class="task-header"><span class="task-number">2</span><span class="task-title">Create Database and Schemas</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create a database called LIQUIDITY_RISK_DB and the following schemas 
+inside it. Proceed autonomously.
+
+Schemas:
+- RAW (source data: positions, cash flows, reference tables)
+- TRANSFORMED (intermediate calculation results)
+- PRESENTATION (final LCR output tables)
+- RAW_SANDBOX (isolated copies for what-if scenarios)
+
+Verify all schemas exist with SHOW SCHEMAS.</code></div>
+
+    <!-- Task 3 -->
+    <div class="task-header"><span class="task-number">3</span><span class="task-title">Generate All Data Tables</span></div>
+    <h3>Path A: Single-Prompt Generation (Recommended for lab day)</h3>
+    <p>Execute the pre-built data setup script -- creates all tables with production-scale data (~500K positions, 100K inflows/outflows, 2000 counterparties) in one shot.</p>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Read the file assets/data-setup.sql and execute all the SQL statements 
+in it against my LIQUIDITY_RISK_DB database. Proceed autonomously.
+
+This script creates and populates:
+- 6 reference tables (ASSET_CLASSIFICATIONS, BUSINESS_UNIT_REFERENCE, 
+  COUNTERPARTY_DATA, CURRENCY_REFERENCE, STRESS_SCENARIOS, 
+  WHAT_IF_DEFINITIONS_LOOKUP)
+- 4 fact tables (MARKET_DATA, POSITIONS, CASH_INFLOWS, CASH_OUTFLOWS)
+- 2 working tables (HQLA_SUMMARY, HQLA_DETAIL)
+- Sandbox clones in RAW_SANDBOX schema
+- Empty presentation tables (LCR, WHAT_IF_LCR)
+
+After execution, show me row counts for all tables and total 
+position value in USD.</code></div>
+
+    <div class="tip-box">
+        <svg class="tip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <div class="tip-content"><strong>What's happening:</strong> CoCo reads the SQL file containing all DDL and DML statements, then executes them sequentially. The data uses Snowflake's GENERATOR function to create realistic volumes efficiently.</div>
+    </div>
+
+    <h3>Path B: Step-by-Step Generation (Optional / Take-Home)</h3>
+    <p>Use individual prompts to have CoCo generate each table from natural language descriptions. This demonstrates CoCo's ability to produce realistic data from domain context alone -- great for learning but takes longer.</p>
+
+    <!-- Task 4 -->
+    <div class="task-header"><span class="task-number">4</span><span class="task-title">Validate the Data</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Run validation queries to confirm everything is set up correctly. 
+Show me a summary table with:
+
+1. Row counts for all tables in RAW schema
+2. Total position value in USD
+3. Distribution of security types in POSITIONS
+4. Number of counterparties by type and region
+5. Sample of WHAT_IF_DEFINITIONS_LOOKUP entries
+6. Confirm RAW_SANDBOX tables are populated (cloned)
+7. Confirm PRESENTATION tables exist (empty)</code></div>
+
+    <h2>Validation Checklist</h2>
+    <ul class="checklist">
+        <li>Connected with CoCo role and LIQUIDITY_RISK_WH warehouse</li>
+        <li>LIQUIDITY_RISK_DB with RAW, TRANSFORMED, PRESENTATION, RAW_SANDBOX schemas</li>
+        <li>6 reference tables populated</li>
+        <li>POSITIONS table: ~500K+ rows</li>
+        <li>CASH_INFLOWS: ~100K rows, CASH_OUTFLOWS: ~100K rows</li>
+        <li>MARKET_DATA table populated with price history</li>
+        <li>RAW_SANDBOX tables cloned from RAW</li>
+        <li>PRESENTATION.LCR and WHAT_IF_LCR tables created (empty)</li>
+    </ul>
+
+    <div class="page-nav">
+        <a class="page-nav-btn" onclick="navigateTo('overview')">&larr; Overview</a>
+        <a class="page-nav-btn primary" onclick="navigateTo('exercise2')">Exercise 2: LCR Pipeline &rarr;</a>
+    </div>
+</div>
+
+<!-- ============ PAGE: Exercise 2 ============ -->
+<div class="page" id="page-exercise2">
+    <h1>Exercise 2: LCR Calculation Pipeline</h1>
+    <p class="page-subtitle">Translate LCR domain requirements into Snowpark Python stored procedures -- CoCo generates production-ready calculation logic from business context.</p>
+
+    <div class="page-meta">
+        <div class="meta-item"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg><strong>35 minutes</strong></div>
+        <div class="meta-item"><span class="badge badge-green">4 Tasks</span></div>
+    </div>
+
+    <h3>Deliverables</h3>
+    <ul>
+        <li><code>RUN_LCR_FORECAST()</code> -- Snowpark stored procedure computing a 150-day LCR forecast</li>
+        <li><code>RUN_WHAT_IF_SCENARIO(WHAT_IF_ID)</code> -- Snowpark stored procedure for stress scenarios</li>
+        <li>Both procedures tested and producing correct results in PRESENTATION tables</li>
+    </ul>
+
+    <div class="quote">
+        <p>"I want to say 'recalculate LCR' in the chat and have it happen. No more waiting."</p>
+        <cite>James Morrison, Head of Treasury Risk</cite>
+    </div>
+
+    <!-- Task 1 -->
+    <div class="task-header"><span class="task-number">1</span><span class="task-title">Understand the Calculation Requirements</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Based on the domain context already loaded, explain the LCR calculation 
+pipeline step by step:
+
+1. How does HQLA projection work? (haircuts, decay, maturity)
+2. How are cashflows projected over 150 days?
+3. How is netting done (inflows vs outflows)?
+4. How is the final LCR ratio computed?
+5. How does the what-if process differ from production?
+
+Keep it concise -- bullet points for each step.</code></div>
+
+    <!-- Task 2 -->
+    <div class="task-header"><span class="task-number">2</span><span class="task-title">Generate the LCR Forecast Procedure</span></div>
+    <p>This is where CoCo's power shines -- translating domain knowledge into working Snowpark code.</p>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create and deploy a Snowpark Python stored procedure called 
+RUN_LCR_FORECAST in LIQUIDITY_RISK_DB.PUBLIC that computes a 150-day 
+LCR forecast. Use the domain context and table schemas already loaded.
+Proceed autonomously.
+
+Requirements:
+- LANGUAGE PYTHON, RUNTIME_VERSION 3.11, EXECUTE AS CALLER
+- Packages: snowflake-snowpark-python
+- Takes no parameters, returns VARCHAR
+
+Pipeline steps to implement:
+1. HQLA Projection (haircuts, decay, maturity zeroing)
+2. HQLA Summary (unpivot wide to long, aggregate per day)
+3. Cashflow Projections (inflows + outflows over 150 days)
+4. Netting (net = inflows + outflows, compute ABS)
+5. Final LCR (HQLA / net_cash_outflows, INSERT to PRESENTATION.LCR)
+6. Return informative success message
+
+Deploy the procedure to Snowflake after generating it.</code></div>
+
+    <div class="tip-box">
+        <svg class="tip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <div class="tip-content"><strong>What's happening:</strong> CoCo's Snowpark Python skill activates automatically -- ensuring correct HANDLER signatures, RUNTIME_VERSION, PACKAGES declaration, and EXECUTE AS CALLER for agent compatibility.</div>
+    </div>
+
+    <!-- Task 3 -->
+    <div class="task-header"><span class="task-number">3</span><span class="task-title">Generate the What-If Scenario Procedure</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create and deploy a Snowpark Python stored procedure called 
+RUN_WHAT_IF_SCENARIO in LIQUIDITY_RISK_DB.PUBLIC that executes a 
+what-if stress scenario. Proceed autonomously.
+
+Requirements:
+- Takes WHAT_IF_ID (VARCHAR) as parameter, returns VARCHAR
+- Clones sandbox tables, applies stress factors via MERGE
+- Runs same LCR pipeline on stressed data
+- Writes results to PRESENTATION.WHAT_IF_LCR
+- Cleans up temp tables after
+
+Deploy the procedure to Snowflake after generating it.</code></div>
+
+    <!-- Task 4 -->
+    <div class="task-header"><span class="task-number">4</span><span class="task-title">Test the Procedures</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Call the RUN_LCR_FORECAST procedure and show me the results.
+Proceed autonomously.
+
+1. CALL LIQUIDITY_RISK_DB.PUBLIC.RUN_LCR_FORECAST();
+2. Query results for days 1, 7, 14, 30, 60, 90, 150
+3. Is Day 1 LCR above 1.0 (Basel III compliant)?
+4. Show the trend -- improving or declining?</code></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Call the RUN_WHAT_IF_SCENARIO procedure with scenario 1 (Market Stress) 
+and compare results to baseline. Proceed autonomously.
+
+1. CALL LIQUIDITY_RISK_DB.PUBLIC.RUN_WHAT_IF_SCENARIO('1');
+2. Compare baseline vs stressed LCR for key days
+3. The stressed LCR should be lower than baseline -- is this the case?</code></div>
+
+    <h2>Validation Checklist</h2>
+    <ul class="checklist">
+        <li>RUN_LCR_FORECAST() exists in LIQUIDITY_RISK_DB.PUBLIC</li>
+        <li>RUN_WHAT_IF_SCENARIO(VARCHAR) exists in LIQUIDITY_RISK_DB.PUBLIC</li>
+        <li>PRESENTATION.LCR populated with 150-day forecast</li>
+        <li>Day 1 LCR above 1.0 (Basel III compliant)</li>
+        <li>What-if scenario 1 produces results in WHAT_IF_LCR</li>
+        <li>Stressed LCR is lower than baseline (stress impact visible)</li>
+        <li>Both procedures return informative success messages</li>
+        <li>Procedures use EXECUTE AS CALLER (for agent invocation)</li>
+    </ul>
+
+    <div class="page-nav">
+        <a class="page-nav-btn" onclick="navigateTo('exercise1')">&larr; Exercise 1</a>
+        <a class="page-nav-btn primary" onclick="navigateTo('exercise3')">Exercise 3: Agent + CoWork &rarr;</a>
+    </div>
+</div>
+
+<!-- ============ PAGE: Exercise 3 ============ -->
+<div class="page" id="page-exercise3">
+    <h1>Exercise 3: Semantic View, Agent &amp; CoWork</h1>
+    <p class="page-subtitle">Create a semantic view, build a multi-tool Cortex Agent, and register it to Snowflake Intelligence.</p>
+
+    <div class="page-meta">
+        <div class="meta-item"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg><strong>40 minutes</strong></div>
+        <div class="meta-item"><span class="badge badge-navy">5 Tasks</span></div>
+    </div>
+
+    <h3>Deliverables</h3>
+    <ul>
+        <li>Semantic view (LIQUIDITY_SV) covering 9 tables with relationships</li>
+        <li>Multi-tool Cortex Agent: Analyst + 2 action tools</li>
+        <li>Agent registered in Snowflake Intelligence (CoWork)</li>
+        <li>Tested with multi-turn executive conversations</li>
+    </ul>
+
+    <div class="quote">
+        <p>"I don't want two separate systems -- one for asking questions and another for running calculations. Give me one interface that does both."</p>
+        <cite>James Morrison, Head of Treasury Risk</cite>
+    </div>
+
+    <!-- Task 1 -->
+    <div class="task-header"><span class="task-number">1</span><span class="task-title">Create the Semantic View</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create a semantic view called LIQUIDITY_SV in LIQUIDITY_RISK_DB.PUBLIC 
+for our liquidity risk data model. Proceed autonomously.
+
+Tables to include (9 total):
+- RAW: ASSET_CLASSIFICATIONS, BUSINESS_UNIT_REFERENCE, COUNTERPARTY_DATA,
+  CASH_INFLOWS, CASH_OUTFLOWS, POSITIONS, WHAT_IF_DEFINITIONS_LOOKUP
+- PRESENTATION: LCR, WHAT_IF_LCR
+
+Define 6+ relationships between tables.
+Add business-friendly column descriptions for key LCR metrics.
+Add 2 verified queries for LCR trend analysis.
+Deploy the semantic view to Snowflake.</code></div>
+
+    <div class="tip-box">
+        <svg class="tip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <div class="tip-content"><strong>What's happening:</strong> CoCo's Semantic View skill reads each table's schema via DESCRIBE, classifies columns as dimensions/facts/time_dimensions, generates the YAML definition, and executes the CREATE SEMANTIC VIEW statement.</div>
+    </div>
+
+    <!-- Task 2 -->
+    <div class="task-header"><span class="task-number">2</span><span class="task-title">Test Cortex Analyst</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Test the LIQUIDITY_SV semantic view with executive questions:
+
+1. "What is our LCR today?"
+2. "How is LCR trending over the next 30 days?"
+3. "Which business unit has the highest net cash outflows?"
+4. "What percentage of our HQLA is Level 1 vs Level 2A vs Level 2B?"
+5. "Show me the top 10 counterparties by outflow amount"</code></div>
+
+    <!-- Task 3 -->
+    <div class="task-header"><span class="task-number">3</span><span class="task-title">Create the Multi-Tool Agent</span></div>
+    <p>The centerpiece -- three tools in one agent:</p>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Tool</th><th>Type</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>LIQUIDITY_ANALYST</code></td><td>cortex_analyst</td><td>Natural language queries via semantic view</td></tr>
+                <tr><td><code>RECALCULATE_LCR</code></td><td>stored_procedure</td><td>Triggers full LCR forecast recalculation</td></tr>
+                <tr><td><code>RUN_WHAT_IF</code></td><td>stored_procedure</td><td>Executes a what-if stress scenario</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create a Cortex Agent called LIQUIDITY_FORECAST_AGENT in 
+LIQUIDITY_RISK_DB.PUBLIC with display name "Liquidity Risk Agent".
+Proceed autonomously.
+
+THREE tools:
+1. LIQUIDITY_ANALYST - queries via LIQUIDITY_SV semantic view
+2. RECALCULATE_LCR - calls RUN_LCR_FORECAST procedure
+3. RUN_WHAT_IF - calls RUN_WHAT_IF_SCENARIO procedure
+
+Orchestration rules:
+- Data questions -> LIQUIDITY_ANALYST
+- Recalculation requests -> RECALCULATE_LCR, then LIQUIDITY_ANALYST
+- What-if requests -> RUN_WHAT_IF, then LIQUIDITY_ANALYST
+- Flag any LCR below 1.0 as regulatory concerns
+
+Deploy the agent to Snowflake.</code></div>
+
+    <!-- Task 4 -->
+    <div class="task-header"><span class="task-number">4</span><span class="task-title">Test the Agent</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Test all three agent capabilities:
+
+1. Query: "What is our current LCR and how does it trend?"
+2. Action: "Please recalculate the LCR forecast"
+3. What-if: "Run what-if scenario 2 (Asia Outflow Spike)"
+4. Chain: "Run market stress and compare to baseline over 30 days"
+
+Show me which tools the agent selected for each request.</code></div>
+
+    <!-- Task 5 -->
+    <div class="task-header"><span class="task-number">5</span><span class="task-title">Register to Snowflake Intelligence</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Register the LIQUIDITY_FORECAST_AGENT to Snowflake Intelligence. 
+Proceed autonomously.
+
+1. Add the agent (handle case where already registered):
+   BEGIN
+       BEGIN
+           ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT 
+             DROP AGENT LIQUIDITY_RISK_DB.PUBLIC.LIQUIDITY_FORECAST_AGENT;
+       EXCEPTION
+           WHEN OTHER THEN NULL;
+       END;
+       ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT 
+         ADD AGENT LIQUIDITY_RISK_DB.PUBLIC.LIQUIDITY_FORECAST_AGENT;
+   END;
+
+2. Verify: SHOW AGENTS IN SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;</code></div>
+
+    <h3>Test in CoWork</h3>
+    <p>Open Snowflake Intelligence in Snowsight and run these conversations:</p>
+    <div class="code-block"><span class="code-label">CoWork</span><code>"What is our LCR position today? How much headroom above the regulatory floor?"</code></div>
+    <div class="code-block"><span class="code-label">CoWork</span><code>"The markets moved overnight. Recalculate the LCR forecast."</code></div>
+    <div class="code-block"><span class="code-label">CoWork</span><code>"Run the Asia Outflow Spike stress test and show impact over 30 days."</code></div>
+
+    <h2>Validation Checklist</h2>
+    <ul class="checklist">
+        <li>LIQUIDITY_SV created with 9 tables and 6+ relationships</li>
+        <li>Cortex Analyst correctly answers NL queries about LCR</li>
+        <li>LIQUIDITY_FORECAST_AGENT created with 3 tools</li>
+        <li>Agent uses LIQUIDITY_ANALYST for data queries</li>
+        <li>Agent invokes RECALCULATE_LCR for recalculation requests</li>
+        <li>Agent invokes RUN_WHAT_IF for stress test requests</li>
+        <li>Agent chains tools (action then query) when appropriate</li>
+        <li>Agent registered in Snowflake Intelligence / CoWork</li>
+        <li>Multi-turn conversation works in CoWork</li>
+        <li>Stress test results show lower LCR than baseline</li>
+    </ul>
+
+    <div class="page-nav">
+        <a class="page-nav-btn" onclick="navigateTo('exercise2')">&larr; Exercise 2</a>
+        <a class="page-nav-btn primary" onclick="navigateTo('bonus-artifacts')">Bonus: Artifacts &rarr;</a>
+    </div>
+</div>
+
+<!-- ============ PAGE: Bonus Artifacts ============ -->
+<div class="page" id="page-bonus-artifacts">
+    <h1>Bonus: Project Artifacts</h1>
+    <p class="page-subtitle">Generate professional documentation -- solution overview, personas, and architecture diagrams.</p>
+
+    <div class="page-meta">
+        <div class="meta-item"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg><strong>25 minutes</strong></div>
+        <div class="meta-item"><span class="badge badge-green">3 Tasks</span></div>
+        <div class="meta-item"><span class="badge badge-navy">Optional</span></div>
+    </div>
+
+    <!-- Task 1 -->
+    <div class="task-header"><span class="task-number">1</span><span class="task-title">Solution Overview Page</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create a Solution Overview document. Proceed autonomously.
+Write to docs/solution-overview.md.
+
+Sections: Executive Summary, Problem Space, Solution Description,
+Key Capabilities, Value Proposition (quantified before/after),
+Technology Stack, Differentiation.</code></div>
+
+    <!-- Task 2 -->
+    <div class="task-header"><span class="task-number">2</span><span class="task-title">Target Customer Personas</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create a Target Personas document. Proceed autonomously.
+Write to docs/target-personas.md.
+
+4 personas with role, pain points, agent questions, objections:
+1. Head of Treasury / CRO (Executive Buyer)
+2. Regulatory Reporting Lead (Compliance Buyer)
+3. Treasury Risk Analyst (End User / Champion)
+4. Data Engineering Lead (Technical Evaluator)</code></div>
+
+    <!-- Task 3 -->
+    <div class="task-header"><span class="task-number">3</span><span class="task-title">Architecture Overview</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create an Architecture document with Mermaid diagrams.
+Proceed autonomously. Write to docs/architecture.md.
+
+Include:
+1. High-Level Architecture Diagram (data -> compute -> semantic -> AI -> UX)
+2. Agent Tool Routing Diagram (decision logic for 3 tools)
+3. Data Flow Diagram (positions -> HQLA -> LCR)
+4. Component Descriptions
+5. Security and Access Control
+6. Scalability Considerations
+
+Use actual object names: LIQUIDITY_RISK_DB, LIQUIDITY_SV, etc.</code></div>
+
+    <h2>Validation Checklist</h2>
+    <ul class="checklist">
+        <li>Solution overview with quantified before/after metrics</li>
+        <li>4 personas with pain points, agent questions, and objections</li>
+        <li>Architecture diagrams render correctly in Mermaid</li>
+        <li>All Snowflake object names referenced correctly</li>
+        <li>Documents are presentation-ready</li>
+    </ul>
+
+    <div class="page-nav">
+        <a class="page-nav-btn" onclick="navigateTo('exercise3')">&larr; Exercise 3</a>
+        <a class="page-nav-btn primary" onclick="navigateTo('bonus-streamlit')">Bonus: Streamlit &rarr;</a>
+    </div>
+</div>
+
+<!-- ============ PAGE: Bonus Streamlit ============ -->
+<div class="page" id="page-bonus-streamlit">
+    <h1>Bonus: Streamlit Dashboard</h1>
+    <p class="page-subtitle">Build an operational dashboard with LCR charts, what-if execution, and agent chat.</p>
+
+    <div class="page-meta">
+        <div class="meta-item"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg><strong>35 minutes</strong></div>
+        <div class="meta-item"><span class="badge badge-blue">3 Tasks</span></div>
+        <div class="meta-item"><span class="badge badge-navy">Optional</span></div>
+    </div>
+
+    <div class="quote">
+        <p>"CoWork is great for James, but my team needs a dashboard they can leave open all day with real-time metrics."</p>
+        <cite>Tom Nguyen, VP Treasury Operations</cite>
+    </div>
+
+    <!-- Task 1 -->
+    <div class="task-header"><span class="task-number">1</span><span class="task-title">LCR Dashboard Page</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Build a Streamlit in Snowflake app. Proceed autonomously.
+
+3 pages: LCR Dashboard, What-if Scenarios, Ask the Agent.
+
+PAGE 1 (LCR Dashboard):
+- Top metrics: LCR ratio, HQLA value, Net Cash Outflows
+- Plotly line chart (150-day forecast, red threshold at 1.0)
+- "Re-Calculate LCR" button calling the stored procedure
+- Expandable raw data table</code></div>
+
+    <!-- Task 2 -->
+    <div class="task-header"><span class="task-number">2</span><span class="task-title">What-If &amp; Agent Pages</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Add remaining pages. Proceed autonomously.
+
+PAGE 2 (What-If): Scenario picker, execute button, comparison chart.
+PAGE 3 (Agent Chat): st.chat_input interface calling Cortex Analyst
+with LIQUIDITY_SV. Execute returned SQL and show as chart + table.</code></div>
+
+    <!-- Task 3 -->
+    <div class="task-header"><span class="task-number">3</span><span class="task-title">Deploy to Snowflake</span></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Deploy the Streamlit app to Snowflake. Proceed autonomously.
+
+1. Create stage LIQUIDITY_STREAMLIT_STAGE
+2. Upload app.py and environment.yml
+3. CREATE STREAMLIT object
+4. Verify with SHOW STREAMLITS</code></div>
+
+    <h2>Validation Checklist</h2>
+    <ul class="checklist">
+        <li>Streamlit app deployed with 3 pages</li>
+        <li>LCR Dashboard shows correct metrics and line chart</li>
+        <li>Re-Calculate button triggers stored procedure</li>
+        <li>What-if page executes scenarios and shows comparison</li>
+        <li>Agent chat responds to natural language queries</li>
+    </ul>
+
+    <div class="card" style="margin-top: 32px; border-color: var(--sf-blue); background: rgba(41, 181, 232, 0.03);">
+        <div class="card-header">
+            <div class="card-icon blue">&#9733;</div>
+            <div class="card-title">Lab Complete</div>
+        </div>
+        <div class="card-body">
+            <p>You've built the full solution: data foundation, LCR pipeline as Snowpark stored procedures, multi-tool Cortex Agent, CoWork registration, and optional documentation and dashboard -- all driven by Cortex Code.</p>
+            <p style="margin-top: 12px; font-weight: 500; color: var(--sf-navy);">Key demonstration: An executive opens CoWork, asks about LCR, says "recalculate," runs a stress test -- all in one conversational interface, fully governed, fully auditable.</p>
+        </div>
+    </div>
+
+    <div class="page-nav">
+        <a class="page-nav-btn" onclick="navigateTo('bonus-artifacts')">&larr; Bonus: Artifacts</a>
+        <span class="page-nav-btn invisible"></span>
+    </div>
+</div>
+
+</main>
+
+<script>
+const pages = ['overview', 'exercise1', 'exercise2', 'exercise3', 'bonus-artifacts', 'bonus-streamlit'];
+
+function navigateTo(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector(`.nav-item[data-page="${pageId}"]`).classList.add('active');
+    document.querySelector('.main').scrollTop = 0;
+    history.pushState(null, '', '#' + pageId);
+}
+
+window.addEventListener('popstate', () => {
+    const hash = location.hash.replace('#', '') || 'overview';
+    if (pages.includes(hash)) navigateTo(hash);
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    const hash = location.hash.replace('#', '') || 'overview';
+    if (pages.includes(hash)) navigateTo(hash);
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    const currentIdx = pages.indexOf(location.hash.replace('#', '') || 'overview');
+    if (e.key === 'ArrowRight' && currentIdx < pages.length - 1) {
+        navigateTo(pages[currentIdx + 1]);
+    } else if (e.key === 'ArrowLeft' && currentIdx > 0) {
+        navigateTo(pages[currentIdx - 1]);
+    }
+});
+</script>
+</body>
+</html>
