@@ -910,6 +910,11 @@
             <span class="nav-label">Streamlit Dashboard</span>
             <span class="nav-duration">35m</span>
         </a></li>
+        <li><a class="nav-item" data-page="bonus-eval" onclick="navigateTo('bonus-eval')">
+            <span class="nav-icon">+</span>
+            <span class="nav-label">Agent Evaluation</span>
+            <span class="nav-duration">20m</span>
+        </a></li>
     </ul>
 </nav>
 
@@ -1020,7 +1025,7 @@
             <!-- Lane 2: Compute → Exercise 2 -->
             <a onclick="navigateTo('exercise2')" style="cursor:pointer">
                 <rect x="120" y="335" width="560" height="70" rx="8" fill="#1D2D47" stroke="#49D49D" stroke-width="1.5" class="arch-box"/>
-                <text x="400" y="360" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">RUN_LCR_FORECAST · RUN_WHAT_IF_SCENARIO</text>
+                <text x="400" y="360" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">RUN_LCR_FORECAST · RUN_WHAT_IF_SCENARIO · SEND_LCR_SUMMARY</text>
                 <text x="400" y="380" text-anchor="middle" fill="#94A3B8" font-size="11">Snowpark Python stored procedures — Basel III haircuts, 30-day stress window</text>
                 <text x="400" y="398" text-anchor="middle" fill="#49D49D" font-size="10" font-weight="500">Exercise 2 · 35 min</text>
             </a>
@@ -1034,8 +1039,8 @@
             <!-- Lane 4: Cortex Agent → Exercise 3 -->
             <a onclick="navigateTo('exercise3')" style="cursor:pointer">
                 <rect x="120" y="135" width="560" height="70" rx="8" fill="#1D2D47" stroke="#F59E0B" stroke-width="1.5" class="arch-box"/>
-                <text x="400" y="160" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">LIQUIDITY_FORECAST_AGENT — 3 Tools</text>
-                <text x="400" y="180" text-anchor="middle" fill="#94A3B8" font-size="11">LIQUIDITY_ANALYST (query) · RECALCULATE_LCR (action) · RUN_WHAT_IF (action)</text>
+                <text x="400" y="160" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="500">LIQUIDITY_FORECAST_AGENT — 4 Tools</text>
+                <text x="400" y="180" text-anchor="middle" fill="#94A3B8" font-size="11">LIQUIDITY_ANALYST (query) · RECALCULATE_LCR (action) · RUN_WHAT_IF (action) · SEND_SUMMARY (action)</text>
                 <text x="400" y="198" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="500">Exercise 3 · 40 min</text>
             </a>
             <!-- Lane 5: Consumption → Exercise 3 + Bonus -->
@@ -1133,7 +1138,7 @@ context from assets/domain-context.md. Summarize the key requirements.</code></d
 
     <h3>Deliverables</h3>
     <ul>
-        <li>LIQUIDITY_RISK_DB database with 4 schemas (RAW, TRANSFORMED, PRESENTATION, RAW_SANDBOX)</li>
+        <li>LIQUIDITY_RISK_DB_&lt;username&gt; database with 4 schemas (RAW, TRANSFORMED, PRESENTATION, RAW_SANDBOX)</li>
         <li>6 reference tables with Basel III classifications</li>
         <li>4+ fact tables with realistic position and cash flow data</li>
         <li>Sandbox clones and presentation tables ready for the pipeline</li>
@@ -1175,8 +1180,9 @@ context from assets/domain-context.md. Summarize the key requirements.</code></d
 
     <!-- Task 2 -->
     <div class="task-header"><span class="task-number">2</span><span class="task-title">Create Database and Schemas</span></div>
-    <div class="code-block"><span class="code-label">Prompt</span><code>Create a database called LIQUIDITY_RISK_DB and the following schemas 
-inside it. Proceed autonomously.
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create a database called LIQUIDITY_RISK_DB_&lt;your_username&gt; (e.g. 
+LIQUIDITY_RISK_DB_JMORRISON) and the following schemas inside it. 
+Proceed autonomously.
 
 Schemas:
 - RAW (source data: positions, cash flows, reference tables)
@@ -1191,7 +1197,7 @@ Verify all schemas exist with SHOW SCHEMAS.</code></div>
     <h3>Path A: Single-Prompt Generation (Recommended for lab day)</h3>
     <p>Execute the pre-built data setup script -- creates all tables with production-scale data (~500K positions, 100K inflows/outflows, 2000 counterparties) in one shot.</p>
     <div class="code-block"><span class="code-label">Prompt</span><code>Read the file assets/data-setup.sql and execute all the SQL statements 
-in it against my LIQUIDITY_RISK_DB database. Proceed autonomously.
+in it against my LIQUIDITY_RISK_DB_&lt;your_username&gt; database. Proceed autonomously.
 
 This script creates and populates:
 - 6 reference tables (ASSET_CLASSIFICATIONS, BUSINESS_UNIT_REFERENCE, 
@@ -1229,7 +1235,7 @@ Show me a summary table with:
     <h2>Validation Checklist</h2>
     <ul class="checklist">
         <li>Connected with CoCo role and LIQUIDITY_RISK_WH warehouse</li>
-        <li>LIQUIDITY_RISK_DB with RAW, TRANSFORMED, PRESENTATION, RAW_SANDBOX schemas</li>
+        <li>LIQUIDITY_RISK_DB_&lt;username&gt; with RAW, TRANSFORMED, PRESENTATION, RAW_SANDBOX schemas</li>
         <li>6 reference tables populated</li>
         <li>POSITIONS table: ~500K+ rows</li>
         <li>CASH_INFLOWS: ~100K rows, CASH_OUTFLOWS: ~100K rows</li>
@@ -1251,14 +1257,15 @@ Show me a summary table with:
 
     <div class="page-meta">
         <div class="meta-item"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg><strong>35 minutes</strong></div>
-        <div class="meta-item"><span class="badge badge-green">4 Tasks</span></div>
+        <div class="meta-item"><span class="badge badge-green">5 Tasks</span></div>
     </div>
 
     <h3>Deliverables</h3>
     <ul>
         <li><code>RUN_LCR_FORECAST()</code> -- Snowpark stored procedure computing a 150-day LCR forecast</li>
         <li><code>RUN_WHAT_IF_SCENARIO(WHAT_IF_ID)</code> -- Snowpark stored procedure for stress scenarios</li>
-        <li>Both procedures tested and producing correct results in PRESENTATION tables</li>
+        <li><code>SEND_LCR_SUMMARY(RECIPIENT_EMAIL)</code> -- Snowpark stored procedure to email a templatized LCR report</li>
+        <li>All procedures tested and producing correct results</li>
     </ul>
 
     <div class="quote">
@@ -1283,7 +1290,7 @@ Keep it concise -- bullet points for each step.</code></div>
     <div class="task-header"><span class="task-number">2</span><span class="task-title">Generate the LCR Forecast Procedure</span></div>
     <p>This is where CoCo's power shines -- translating domain knowledge into working Snowpark code.</p>
     <div class="code-block"><span class="code-label">Prompt</span><code>Create and deploy a Snowpark Python stored procedure called 
-RUN_LCR_FORECAST in LIQUIDITY_RISK_DB.PUBLIC that computes a 150-day 
+RUN_LCR_FORECAST in LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC that computes a 150-day 
 LCR forecast. Use the domain context and table schemas already loaded.
 Proceed autonomously.
 
@@ -1297,8 +1304,11 @@ Pipeline steps to implement:
 2. HQLA Summary (unpivot wide to long, aggregate per day)
 3. Cashflow Projections (inflows + outflows over 150 days)
 4. Netting (net = inflows + outflows, compute ABS)
-5. Final LCR (HQLA / net_cash_outflows, INSERT to PRESENTATION.LCR)
-6. Return informative success message
+5. Final LCR (HQLA / net_cash_outflows)
+6. Write results to PRESENTATION.LCR (MERGE or INSERT OVERWRITE) 
+   so downstream consumers (agent, dashboards, email summaries) 
+   can read the latest forecast
+7. Return informative success message
 
 Deploy the procedure to Snowflake after generating it.</code></div>
 
@@ -1310,7 +1320,7 @@ Deploy the procedure to Snowflake after generating it.</code></div>
     <!-- Task 3 -->
     <div class="task-header"><span class="task-number">3</span><span class="task-title">Generate the What-If Scenario Procedure</span></div>
     <div class="code-block"><span class="code-label">Prompt</span><code>Create and deploy a Snowpark Python stored procedure called 
-RUN_WHAT_IF_SCENARIO in LIQUIDITY_RISK_DB.PUBLIC that executes a 
+RUN_WHAT_IF_SCENARIO in LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC that executes a 
 what-if stress scenario. Proceed autonomously.
 
 Requirements:
@@ -1323,30 +1333,82 @@ Requirements:
 Deploy the procedure to Snowflake after generating it.</code></div>
 
     <!-- Task 4 -->
-    <div class="task-header"><span class="task-number">4</span><span class="task-title">Test the Procedures</span></div>
+    <div class="task-header"><span class="task-number">4</span><span class="task-title">Generate the Email Summary Procedure</span></div>
+    <p>Create a procedure that generates a templatized LCR summary report and emails it to a recipient using Snowflake's notification integration.</p>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create and deploy a Snowpark Python stored procedure called 
+SEND_LCR_SUMMARY in LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC that generates a 
+formatted LCR summary report and emails it to a recipient.
+Proceed autonomously.
+
+Requirements:
+- LANGUAGE PYTHON, RUNTIME_VERSION 3.11, EXECUTE AS CALLER
+- Packages: snowflake-snowpark-python
+- Takes RECIPIENT_EMAIL (VARCHAR) as parameter, returns VARCHAR
+
+Steps to implement:
+1. Query the latest LCR data from PRESENTATION.LCR 
+   (most recent CREATED_TIMESTAMP)
+2. Extract key metrics: Day 1 LCR, Day 30 LCR, HQLA, 
+   Net Cash Outflows, compliance status
+3. Query the latest what-if results from PRESENTATION.WHAT_IF_LCR 
+   (if any exist)
+4. Build an HTML email body using a template:
+   - Header: "GlobalBank - Daily LCR Summary Report"
+   - Section 1: Current Position (Day 1 LCR, HQLA, Outflows)
+   - Section 2: 30-Day Forecast (LCR trend direction, any 
+     compliance breaches)
+   - Section 3: Stress Test Results (if available -- latest 
+     what-if scenario vs baseline)
+   - Footer: "Generated via Cortex Agent | {timestamp}"
+5. Send the email using:
+   CALL SYSTEM$SEND_EMAIL(
+     'lcr_email_integration',
+     :RECIPIENT_EMAIL,
+     'Daily LCR Summary - GlobalBank Treasury Risk',
+     :html_body,
+     'text/html'
+   )
+6. Return: 'LCR summary report sent to {RECIPIENT_EMAIL}'
+
+Note: The notification integration 'lcr_email_integration' should 
+be pre-configured. If it doesn't exist, create it:
+CREATE NOTIFICATION INTEGRATION IF NOT EXISTS lcr_email_integration
+  TYPE = EMAIL
+  ENABLED = TRUE
+  ALLOWED_RECIPIENTS = ('*');</code></div>
+
+    <!-- Task 5 -->
+    <div class="task-header"><span class="task-number">5</span><span class="task-title">Test the Procedures</span></div>
     <div class="code-block"><span class="code-label">Prompt</span><code>Call the RUN_LCR_FORECAST procedure and show me the results.
 Proceed autonomously.
 
-1. CALL LIQUIDITY_RISK_DB.PUBLIC.RUN_LCR_FORECAST();
+1. CALL LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC.RUN_LCR_FORECAST();
 2. Query results for days 1, 7, 14, 30, 60, 90, 150
 3. Is Day 1 LCR above 1.0 (Basel III compliant)?
 4. Show the trend -- improving or declining?</code></div>
     <div class="code-block"><span class="code-label">Prompt</span><code>Call the RUN_WHAT_IF_SCENARIO procedure with scenario 1 (Market Stress) 
 and compare results to baseline. Proceed autonomously.
 
-1. CALL LIQUIDITY_RISK_DB.PUBLIC.RUN_WHAT_IF_SCENARIO('1');
+1. CALL LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC.RUN_WHAT_IF_SCENARIO('1');
 2. Compare baseline vs stressed LCR for key days
 3. The stressed LCR should be lower than baseline -- is this the case?</code></div>
+    <div class="code-block"><span class="code-label">Prompt</span><code>Test the SEND_LCR_SUMMARY procedure. Proceed autonomously.
+
+1. CALL LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC.SEND_LCR_SUMMARY('&lt;your_email&gt;');
+2. Confirm the procedure returns a success message
+3. Check your inbox for the LCR summary email</code></div>
 
     <h2>Validation Checklist</h2>
     <ul class="checklist">
-        <li>RUN_LCR_FORECAST() exists in LIQUIDITY_RISK_DB.PUBLIC</li>
-        <li>RUN_WHAT_IF_SCENARIO(VARCHAR) exists in LIQUIDITY_RISK_DB.PUBLIC</li>
+        <li>RUN_LCR_FORECAST() exists in LIQUIDITY_RISK_DB_&lt;username&gt;.PUBLIC</li>
+        <li>RUN_WHAT_IF_SCENARIO(VARCHAR) exists in LIQUIDITY_RISK_DB_&lt;username&gt;.PUBLIC</li>
+        <li>SEND_LCR_SUMMARY(VARCHAR) exists in LIQUIDITY_RISK_DB_&lt;username&gt;.PUBLIC</li>
         <li>PRESENTATION.LCR populated with 150-day forecast</li>
         <li>Day 1 LCR above 1.0 (Basel III compliant)</li>
         <li>What-if scenario 1 produces results in WHAT_IF_LCR</li>
         <li>Stressed LCR is lower than baseline (stress impact visible)</li>
-        <li>Both procedures return informative success messages</li>
+        <li>Email summary sent successfully to recipient</li>
+        <li>All procedures return informative success messages</li>
         <li>Procedures use EXECUTE AS CALLER (for agent invocation)</li>
     </ul>
 
@@ -1381,7 +1443,7 @@ and compare results to baseline. Proceed autonomously.
 
     <!-- Task 1 -->
     <div class="task-header"><span class="task-number">1</span><span class="task-title">Create the Semantic View</span></div>
-    <div class="code-block"><span class="code-label">Prompt</span><code>Create a semantic view called LIQUIDITY_SV in LIQUIDITY_RISK_DB.PUBLIC 
+    <div class="code-block"><span class="code-label">Prompt</span><code>Create a semantic view called LIQUIDITY_SV in LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC 
 for our liquidity risk data model. Proceed autonomously.
 
 Tables to include (9 total):
@@ -1411,7 +1473,7 @@ Deploy the semantic view to Snowflake.</code></div>
 
     <!-- Task 3 -->
     <div class="task-header"><span class="task-number">3</span><span class="task-title">Create the Multi-Tool Agent</span></div>
-    <p>The centerpiece -- three tools in one agent:</p>
+    <p>The centerpiece -- four tools plus charting in one agent:</p>
     <div class="table-wrap">
         <table>
             <thead><tr><th>Tool</th><th>Type</th><th>Purpose</th></tr></thead>
@@ -1419,34 +1481,44 @@ Deploy the semantic view to Snowflake.</code></div>
                 <tr><td><code>LIQUIDITY_ANALYST</code></td><td>cortex_analyst</td><td>Natural language queries via semantic view</td></tr>
                 <tr><td><code>RECALCULATE_LCR</code></td><td>stored_procedure</td><td>Triggers full LCR forecast recalculation</td></tr>
                 <tr><td><code>RUN_WHAT_IF</code></td><td>stored_procedure</td><td>Executes a what-if stress scenario</td></tr>
+                <tr><td><code>SEND_SUMMARY</code></td><td>stored_procedure</td><td>Emails a templatized LCR summary report</td></tr>
+                <tr><td><code>data_chart</code></td><td>data_chart</td><td>Renders charts from query results</td></tr>
             </tbody>
         </table>
     </div>
     <div class="code-block"><span class="code-label">Prompt</span><code>Create a Cortex Agent called LIQUIDITY_FORECAST_AGENT in 
-LIQUIDITY_RISK_DB.PUBLIC with display name "Liquidity Risk Agent".
+LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC with display name "Liquidity Risk Agent".
 Proceed autonomously.
 
-THREE tools:
+FIVE tools:
 1. LIQUIDITY_ANALYST - queries via LIQUIDITY_SV semantic view
 2. RECALCULATE_LCR - calls RUN_LCR_FORECAST procedure
 3. RUN_WHAT_IF - calls RUN_WHAT_IF_SCENARIO procedure
+4. SEND_SUMMARY - calls SEND_LCR_SUMMARY procedure (takes RECIPIENT_EMAIL param)
+5. data_chart - enable the data charting tool so the agent can 
+   render visualizations from query results
 
 Orchestration rules:
 - Data questions -> LIQUIDITY_ANALYST
 - Recalculation requests -> RECALCULATE_LCR, then LIQUIDITY_ANALYST
 - What-if requests -> RUN_WHAT_IF, then LIQUIDITY_ANALYST
+- Email/send/report requests -> SEND_SUMMARY (ask for recipient if not provided)
+- Visualization requests -> LIQUIDITY_ANALYST then data_chart
 - Flag any LCR below 1.0 as regulatory concerns
 
 Deploy the agent to Snowflake.</code></div>
 
     <!-- Task 4 -->
     <div class="task-header"><span class="task-number">4</span><span class="task-title">Test the Agent</span></div>
-    <div class="code-block"><span class="code-label">Prompt</span><code>Test all three agent capabilities:
+    <div class="code-block"><span class="code-label">Prompt</span><code>Test all five agent capabilities:
 
 1. Query: "What is our current LCR and how does it trend?"
 2. Action: "Please recalculate the LCR forecast"
 3. What-if: "Run what-if scenario 2 (Asia Outflow Spike)"
-4. Chain: "Run market stress and compare to baseline over 30 days"
+4. Email: "Send me a summary of today's LCR position to my email"
+5. Chain: "Run market stress and compare to baseline over 30 days"
+6. Visualize: "Show me a chart of the LCR trend over the next 90 days 
+   overlaid with the last 2 what-if scenarios executed"
 
 Show me which tools the agent selected for each request.</code></div>
 
@@ -1459,12 +1531,12 @@ Proceed autonomously.
    BEGIN
        BEGIN
            ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT 
-             DROP AGENT LIQUIDITY_RISK_DB.PUBLIC.LIQUIDITY_FORECAST_AGENT;
+             DROP AGENT LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC.LIQUIDITY_FORECAST_AGENT;
        EXCEPTION
            WHEN OTHER THEN NULL;
        END;
        ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT 
-         ADD AGENT LIQUIDITY_RISK_DB.PUBLIC.LIQUIDITY_FORECAST_AGENT;
+         ADD AGENT LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC.LIQUIDITY_FORECAST_AGENT;
    END;
 
 2. Verify: SHOW AGENTS IN SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;</code></div>
@@ -1479,11 +1551,13 @@ Proceed autonomously.
     <ul class="checklist">
         <li>LIQUIDITY_SV created with 9 tables and 6+ relationships</li>
         <li>Cortex Analyst correctly answers NL queries about LCR</li>
-        <li>LIQUIDITY_FORECAST_AGENT created with 3 tools</li>
+        <li>LIQUIDITY_FORECAST_AGENT created with 5 tools (including data_chart)</li>
         <li>Agent uses LIQUIDITY_ANALYST for data queries</li>
         <li>Agent invokes RECALCULATE_LCR for recalculation requests</li>
         <li>Agent invokes RUN_WHAT_IF for stress test requests</li>
+        <li>Agent invokes SEND_SUMMARY for email/report requests</li>
         <li>Agent chains tools (action then query) when appropriate</li>
+        <li>Agent renders charts via data_chart for visualization requests</li>
         <li>Agent registered in Snowflake Intelligence / CoWork</li>
         <li>Multi-turn conversation works in CoWork</li>
         <li>Stress test results show lower LCR than baseline</li>
@@ -1539,7 +1613,7 @@ Include:
 5. Security and Access Control
 6. Scalability Considerations
 
-Use actual object names: LIQUIDITY_RISK_DB, LIQUIDITY_SV, etc.</code></div>
+Use actual object names: LIQUIDITY_RISK_DB_&lt;your_username&gt;, LIQUIDITY_SV, etc.</code></div>
 
     <h2>Validation Checklist</h2>
     <ul class="checklist">
@@ -1610,19 +1684,134 @@ with LIQUIDITY_SV. Execute returned SQL and show as chart + table.</code></div>
         <li>Agent chat responds to natural language queries</li>
     </ul>
 
-    <div class="card" style="margin-top: 32px; border-color: var(--sf-blue); background: rgba(41, 181, 232, 0.03);">
+    <div class="page-nav">
+        <a class="page-nav-btn" onclick="navigateTo('bonus-artifacts')">&larr; Bonus: Artifacts</a>
+        <a class="page-nav-btn primary" onclick="navigateTo('bonus-eval')">Bonus: Evaluation &rarr;</a>
+    </div>
+</div>
+
+<!-- ============ PAGE: Bonus Agent Evaluation ============ -->
+<div class="page" id="page-bonus-eval">
+    <h1>Bonus: Agent Evaluation</h1>
+    <p class="page-subtitle">Create an evaluation dataset and run a formal eval to measure your agent's accuracy.</p>
+
+    <div class="page-meta">
+        <div class="meta-item"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg><strong>20 minutes</strong></div>
+        <div class="meta-item"><span class="badge badge-blue">3 Tasks</span></div>
+        <div class="meta-item"><span class="badge badge-navy">Optional</span></div>
+    </div>
+
+    <div class="quote">
+        <p>"How do we know the agent is actually giving correct answers? We need measurable accuracy before this goes to production."</p>
+        <cite>Sarah Chen, Head of Model Validation</cite>
+    </div>
+
+    <h3>Background</h3>
+    <p>Snowflake Agent Evaluations let you formally benchmark your Cortex Agent by running it against a set of known questions and scoring the responses. The <code>/cortex-agent</code> skill in Cortex Code automates the full workflow: creating a dataset, uploading the evaluation config, running the eval, and reporting metrics.</p>
+
+    <h3>What You'll Measure</h3>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Metric</th><th>What It Checks</th><th>Requires</th></tr></thead>
+            <tbody>
+                <tr><td><code>answer_correctness</code></td><td>Is the final answer semantically correct?</td><td>Expected answer per question</td></tr>
+                <tr><td><code>logical_consistency</code></td><td>Is the response internally consistent?</td><td>Nothing (reference-free)</td></tr>
+                <tr><td><code>tool_selection_accuracy</code></td><td>Did the agent invoke the correct tool?</td><td>Expected tool invocations per question</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Task 1 -->
+    <div class="task-header"><span class="task-number">1</span><span class="task-title">Create the Evaluation Dataset</span></div>
+    <p>Use the <code>/cortex-agent</code> skill to create an evaluation dataset from scratch. This dataset contains test questions with expected answers that your agent should produce.</p>
+    <div class="code-block"><span class="code-label">Prompt</span><code>/cortex-agent Create an evaluation dataset from scratch for the
+LIQUIDITY_FORECAST_AGENT in LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC.
+
+Metric scope: Both (AC-track + TEA-track).
+
+Design questions covering:
+- AC-track (10 questions): LCR ratio queries, HQLA composition,
+  cash flow queries, business unit comparisons, regulatory thresholds
+- TEA-track: Tool routing questions that verify correct tool selection:
+  * Data queries -> LIQUIDITY_ANALYST
+  * Recalculation requests -> RECALCULATE_LCR
+  * What-if stress tests -> RUN_WHAT_IF
+  * Email/report requests -> SEND_SUMMARY
+
+Use methodology 1 (invoke the agent) to generate ground truth.</code></div>
+
+    <div class="tip-box">
+        <svg class="tip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <div class="tip-content"><strong>What's happening:</strong> CoCo's cortex-agent skill reads the agent config, identifies the 4 tools, generates two tracks of questions -- AC-track (answer correctness) and TEA-track (tool selection) -- invokes the agent to capture ground-truth answers and tool invocations, then creates and registers a <code>CORTEX AGENT</code> evaluation dataset in Snowflake.</div>
+    </div>
+
+    <!-- Task 2 -->
+    <div class="task-header"><span class="task-number">2</span><span class="task-title">Run the Evaluation</span></div>
+    <p>Once the dataset is registered, run the evaluation. The skill will generate a YAML config, upload it to a stage, and kick off the evaluation run.</p>
+    <div class="code-block"><span class="code-label">Prompt</span><code>/cortex-agent Evaluate the LIQUIDITY_FORECAST_AGENT in
+LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC using the dataset we just created.
+
+Metrics: answer_correctness, logical_consistency, tool_selection_accuracy.
+Wait for results and show me the summary scores.</code></div>
+
+    <div class="tip-box">
+        <svg class="tip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <div class="tip-content"><strong>What's happening:</strong> CoCo generates an evaluation YAML config, uploads it to a Snowflake stage via PUT, starts the eval with <code>EXECUTE_AI_EVALUATION</code>, polls until completion, then queries <code>GET_AI_EVALUATION_DATA</code> for per-metric scores. The evaluation typically takes 2-5 minutes depending on question count.</div>
+    </div>
+
+    <!-- Task 3 -->
+    <div class="task-header"><span class="task-number">3</span><span class="task-title">Review Results in CoCo</span></div>
+    <p>Query the evaluation results directly in Cortex Code to explore per-question scores and drill into any low-scoring responses.</p>
+    <div class="code-block"><span class="code-label">Prompt</span><code>/cortex-agent Show me the evaluation results summary.
+Query the per-question scores and show any questions that scored
+below 0.5 on answer_correctness with their explanations.
+Also show which tools were selected vs expected for low TSA scores.</code></div>
+
+    <p style="margin-top: 16px;">CoCo will query the results and display:</p>
+    <ul>
+        <li>Aggregate scores per metric</li>
+        <li>Per-question breakdown showing the agent's response vs. expected</li>
+        <li>Evaluation criteria and explanations for each score</li>
+        <li>Tool selection details (expected vs. actual) for TSA-scored rows</li>
+    </ul>
+
+    <h2>Validation Checklist</h2>
+    <ul class="checklist">
+        <li>Evaluation dataset table created with AC-track and TEA-track questions</li>
+        <li>TEA-track rows include <code>ground_truth_invocations</code> with expected tool names</li>
+        <li>Dataset registered with <code>SYSTEM$CREATE_EVALUATION_DATASET</code></li>
+        <li>Evaluation run completed (status: COMPLETED)</li>
+        <li><code>answer_correctness</code> score reported (target: &gt; 0.7)</li>
+        <li><code>logical_consistency</code> score reported (target: &gt; 0.8)</li>
+        <li><code>tool_selection_accuracy</code> score reported (target: &gt; 0.8)</li>
+        <li>Snowsight evaluation URL accessible (optional -- for deeper trace exploration)</li>
+        <li>Low-scoring questions identified with explanations</li>
+    </ul>
+
+    <div class="card" style="margin-top: 32px; border-color: var(--sf-accent); background: rgba(73, 212, 157, 0.03);">
+        <div class="card-header">
+            <div class="card-icon green">&#9889;</div>
+            <div class="card-title">Going Further</div>
+        </div>
+        <div class="card-body">
+            <p>To improve scores, use <code>/cortex-agent Optimize the LIQUIDITY_FORECAST_AGENT</code> to enter the optimization workflow. This benchmarks, identifies weak spots, refines instructions, and re-evaluates -- all within Cortex Code.</p>
+            <p style="margin-top: 8px;">You can also expand the dataset with <code>tool_execution_accuracy</code> (TEA) metrics to verify the agent's tool inputs and outputs match expected values -- a deeper check than tool selection alone.</p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 24px; border-color: var(--sf-blue); background: rgba(41, 181, 232, 0.03);">
         <div class="card-header">
             <div class="card-icon blue">&#9733;</div>
             <div class="card-title">Lab Complete</div>
         </div>
         <div class="card-body">
-            <p>You've built the full solution: data foundation, LCR pipeline as Snowpark stored procedures, multi-tool Cortex Agent, CoWork registration, and optional documentation and dashboard -- all driven by Cortex Code.</p>
-            <p style="margin-top: 12px; font-weight: 500; color: var(--sf-navy);">Key demonstration: An executive opens CoWork, asks about LCR, says "recalculate," runs a stress test -- all in one conversational interface, fully governed, fully auditable.</p>
+            <p>You've built the full solution: data foundation, LCR pipeline as Snowpark stored procedures, multi-tool Cortex Agent, CoWork registration, and optional documentation, dashboard, and formal evaluation -- all driven by Cortex Code.</p>
+            <p style="margin-top: 12px; font-weight: 500; color: var(--sf-navy);">Key demonstration: An executive opens CoWork, asks about LCR, says "recalculate," runs a stress test -- all in one conversational interface, fully governed, fully auditable, and now formally evaluated for accuracy.</p>
         </div>
     </div>
 
     <div class="page-nav">
-        <a class="page-nav-btn" onclick="navigateTo('bonus-artifacts')">&larr; Bonus: Artifacts</a>
+        <a class="page-nav-btn" onclick="navigateTo('bonus-streamlit')">&larr; Bonus: Streamlit</a>
         <span class="page-nav-btn invisible"></span>
     </div>
 </div>
@@ -1630,7 +1819,7 @@ with LIQUIDITY_SV. Execute returned SQL and show as chart + table.</code></div>
 </main>
 
 <script>
-const pages = ['overview', 'exercise1', 'exercise2', 'exercise3', 'bonus-artifacts', 'bonus-streamlit'];
+const pages = ['overview', 'exercise1', 'exercise2', 'exercise3', 'bonus-artifacts', 'bonus-streamlit', 'bonus-eval'];
 
 function navigateTo(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));

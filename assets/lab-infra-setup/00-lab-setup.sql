@@ -22,6 +22,12 @@ USE ROLE ACCOUNTADMIN;
 -- ───────────────────────────────────────────────────────
 CREATE SNOWFLAKE INTELLIGENCE IF NOT EXISTS SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;
 
+-- Email notification integration (for SEND_LCR_SUMMARY procedure)
+CREATE NOTIFICATION INTEGRATION IF NOT EXISTS LCR_EMAIL_INTEGRATION
+  TYPE = EMAIL
+  ENABLED = TRUE
+  ALLOWED_RECIPIENTS = ('*');
+
 
 -- ───────────────────────────────────────────────────────
 -- PER-USER SETUP (repeat for each participant)
