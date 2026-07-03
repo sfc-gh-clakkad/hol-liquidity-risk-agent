@@ -1362,7 +1362,11 @@ Deploy the procedure to Snowflake after generating it.</code></div>
 
     <!-- Task 4 -->
     <div class="task-header"><span class="task-number">4</span><span class="task-title">Generate the Email Summary Procedure</span></div>
-    <p>Create a procedure that generates a templatized LCR summary report and emails it to a recipient using Snowflake's notification integration.</p>
+    <p>Create a procedure that generates a templatized LCR summary report and emails it to a recipient.</p>
+    <div class="tip-box">
+        <svg class="tip-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <div class="tip-content"><strong>Note:</strong> This procedure uses the pre-configured <code>lcr_email_integration</code> notification integration, provisioned by your lab admin.</div>
+    </div>
     <div class="code-block"><span class="code-label">Prompt</span><code>Using /snowpark-python skill, create and deploy a Snowpark Python stored 
 procedure called SEND_LCR_SUMMARY in LIQUIDITY_RISK_DB_&lt;your_username&gt;.PUBLIC 
 that generates a formatted LCR summary report and emails it to a recipient.
@@ -1396,14 +1400,7 @@ Steps to implement:
      :html_body,
      'text/html'
    )
-6. Return: 'LCR summary report sent to {RECIPIENT_EMAIL}'
-
-Note: The notification integration 'lcr_email_integration' should 
-be pre-configured. If it doesn't exist, create it:
-CREATE NOTIFICATION INTEGRATION IF NOT EXISTS lcr_email_integration
-  TYPE = EMAIL
-  ENABLED = TRUE
-  ALLOWED_RECIPIENTS = ('*');</code></div>
+6. Return: 'LCR summary report sent to {RECIPIENT_EMAIL}'</code></div>
 
     <!-- Task 5 -->
     <div class="task-header"><span class="task-number">5</span><span class="task-title">Test the Procedures</span></div>
